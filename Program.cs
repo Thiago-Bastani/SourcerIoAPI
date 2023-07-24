@@ -17,6 +17,7 @@ builder.Services.AddDbContext<SourcerIoDbContext>(opt =>
 #region Services
 
 builder.Services.AddSingleton<MapService>();
+builder.Services.AddSingleton<SocketService>();
 
 #endregion
 
