@@ -23,6 +23,7 @@ public partial class SourcerIoDbContext : DbContext
         => optionsBuilder.UseSqlServer(_config.GetConnectionString("SQLEXPRESS") ?? throw new Exception("DB String not found."));
 
     public DbSet<Player> Players { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<PlayerAttributes> PlayerAttributes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,6 +32,11 @@ public partial class SourcerIoDbContext : DbContext
             .HasOne(player => player.Attributes)
             .WithOne(pattr => pattr.Player)
             .HasForeignKey<PlayerAttributes>(pattr => pattr.Id);
+
+        modelBuilder.Entity<User>()
+            .HasMany(user => user.Player)
+            .WithOne(player => player.User);
+
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
