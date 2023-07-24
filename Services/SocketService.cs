@@ -11,19 +11,13 @@ public class SocketService
 
     public void connectMapToASocket(Map map)
     {
-        SocketIOServer socket = new SocketIOServer(new SocketIOServerOption(HandlePortGeneration()));
-        // add socket if it doesn't already exist on the list
-        if (_runningSockets.Find(rsocket => rsocket.Option.Port == socket.Option.Port) == null)
+        SocketIOServer socket = loadBalancer().Item1;
+        Boolean socketAlreadyExists = loadBalancer().Item2;
+        map.Socket = socket;
+        if (!socketAlreadyExists)
         {
-            _runningSockets.Add(socket);
-            SetServerRules(map);
+            SetSocketRules(map);
             StartServer(socket);
-        }
-        else
-        {
-            SocketIOServer lastCreatedSocket = _runningSockets[_runningSockets.Count() - 1];
-            // if the port of the new socket is already beeing used, map gets another socket to run on it
-            map.Socket = RecicleAvailableSocket() ?? lastCreatedSocket;
         }
     }
 
@@ -32,7 +26,26 @@ public class SocketService
         socket.Start();
     }
 
-    public void SetServerRules(Map map)
+
+    public (SocketIOServer, Boolean) loadBalancer()
+    {
+        SocketIOServer socket = new SocketIOServer(new SocketIOServerOption(HandlePortGeneration()));
+        Boolean socketAlreadyExists = _runningSockets.Find(rsocket => rsocket.Option.Port == socket.Option.Port) != null;
+        // add socket if it doesn't already exist on the list
+        if (!socketAlreadyExists)
+        {
+            _runningSockets.Add(socket);
+            return (socket, socketAlreadyExists);
+        }
+        else
+        {
+            SocketIOServer lastCreatedSocket = _runningSockets[_runningSockets.Count() - 1];
+            // if the port of the new socket is already beeing used, map gets another socket to run on it
+            return (RecicleAvailableSocket() ?? lastCreatedSocket, socketAlreadyExists);
+        }
+    }
+
+    public void SetSocketRules(Map map)
     {
         map.Socket.OnConnection((SocketIOSocket socket) => HandleSocketConnection(socket));
     }
