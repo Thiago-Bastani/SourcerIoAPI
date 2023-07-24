@@ -1,6 +1,3 @@
-
-using SocketIOSharp.Server;
-using SocketIOSharp.Server.Client;
 using SorcerIo.Domain;
 
 namespace SorcerIo.Services
@@ -9,8 +6,11 @@ namespace SorcerIo.Services
     {
 
         private static List<Map> _runningMaps = new List<Map>();
-        private static List<SocketIOServer> _runningSockets = new List<SocketIOServer>();
-        private const ushort START_PORT = 3000;
+        private SocketService _socketService;
+        public MapService(SocketService socketService)
+        {
+            _socketService = socketService;
+        }
 
         public void CreateMap(Player owner, string layout = "standard")
         {
@@ -18,7 +18,7 @@ namespace SorcerIo.Services
             if (FindMap(owner) == null)
             {
                 _runningMaps.Add(map);
-                connectMapToASocket(map);
+                _socketService.connectMapToASocket(map);
             }
             else
             {
@@ -26,32 +26,6 @@ namespace SorcerIo.Services
             }
         }
 
-        public void connectMapToASocket(Map map)
-        {
-            SocketIOServer socket = new SocketIOServer(new SocketIOServerOption(HandlePortGeneration()));
-            // add socket if it doesn't already exist on the list
-            if (_runningSockets.Find(rsocket => rsocket.Option.Port == socket.Option.Port) == null)
-            {
-                _runningSockets.Add(socket);
-                SetServerRules(map);
-                StartServer(socket);
-            }
-            else
-            {
-                // if the port is beeing used by another socket, map gets that socket to run on it
-                map.Socket = _runningSockets[_runningSockets.Count() - 1];
-            }
-        }
-
-        public void StartServer(SocketIOServer socket)
-        {
-            socket.Start();
-        }
-
-        public void SetServerRules(Map map)
-        {
-            map.Socket.OnConnection((SocketIOSocket socket) => HandleSocketConnection(socket));
-        }
 
         public void DestroyMap(Player owner)
         {
@@ -64,38 +38,7 @@ namespace SorcerIo.Services
             {
                 throw new Exception("Map does not exist!");
             }
-            SocketGarbageCollector();
-        }
-
-        public void HandleSocketConnection(SocketIOSocket socket)
-        {
-            Console.WriteLine($"Client connected: {socket.ToString()}");
-        }
-
-        public ushort HandlePortGeneration()
-        {
-            SocketIOServer lastAddedSocket = _runningSockets[_runningSockets.Count() - 1];
-            // eatch port can have 50 clients
-            if (lastAddedSocket.ClientsCounts > 50)
-            {
-                return Convert.ToUInt16(START_PORT + _runningSockets.Count()); // go to next port
-            }
-            else
-            {
-                return Convert.ToUInt16(START_PORT + (_runningSockets.Count() - 1)); // stay in the current port (START_PORT + socketsCount - 1)
-            }
-        }
-
-        public void SocketGarbageCollector()
-        {
-            foreach (SocketIOServer socket in _runningSockets)
-            {
-                if (socket.ClientsCounts == 0)
-                {
-                    socket.Stop();
-                    _runningSockets.Remove(socket);
-                }
-            }
+            _socketService.SocketGarbageCollector();
         }
 
         public Map? FindMap(Player owner)
