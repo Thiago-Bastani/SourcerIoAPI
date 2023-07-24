@@ -57,9 +57,8 @@ namespace SorcerIo.Services
 
         public Map? FindMap(Player owner, ushort port)
         {
-            // consider only owner and socket port
-            return _currentMaps.Find(cmap =>
-            (cmap.Owner == owner) && (cmap.Socket.Option.Port == port));
+            // consider only owner
+            return _currentMaps.Find(cmap => cmap.Owner == owner);
         }
     }
 }
