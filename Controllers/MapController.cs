@@ -18,14 +18,14 @@ namespace SorcerIo.Controllers
         [HttpPost("create-map")]
         public IActionResult CreateMap(Player player, ushort port)
         {
-            _mapService.CreateMap(player, port);
+            _mapService.CreateMap(player);
             return Ok($"Socket server started on port {port}.");
         }
 
         [HttpPost("destroy-map")]
         public IActionResult DestroyMap(Player player, ushort port)
         {
-            _mapService.DestroyMap(player, port);
+            _mapService.DestroyMap(player);
             return Ok($"Socket server on port {port} stopped.");
         }
     }
