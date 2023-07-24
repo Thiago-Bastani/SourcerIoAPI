@@ -1,6 +1,4 @@
-﻿
-using System.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SorcerIo.Domain;
 
 namespace SorcerIoAPI.Data;
