@@ -7,10 +7,9 @@ public class Map
     public Player Owner { get; set; }
     public IList<Player>? ConnectedPlayers { get; set; }
     public SocketIOServer Socket { get; set; }
-    public Map(string layout, Player owner, SocketIOServer socket)
+    public Map(string layout, Player owner)
     {
         Layout = layout;
         Owner = owner;
-        Socket = socket;
     }
 }
