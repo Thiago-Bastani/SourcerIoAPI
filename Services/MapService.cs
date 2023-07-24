@@ -1,6 +1,7 @@
 
 using SocketIOSharp.Server;
 using SocketIOSharp.Server.Client;
+using SorcerIo.Domain;
 
 namespace SorcerIo.Services
 {

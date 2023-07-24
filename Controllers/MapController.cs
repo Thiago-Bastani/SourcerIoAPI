@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SorcerIo.Domain;
 using SorcerIo.Services;
 
 namespace SorcerIo.Controllers

@@ -1,5 +1,5 @@
 using SocketIOSharp.Server;
-
+namespace SorcerIo.Domain;
 public class Map
 {
     public string Layout { get; set; }
